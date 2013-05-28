@@ -29,13 +29,28 @@
 	<bean id="transactionManager" class="org.springframework.jdbc.datasource.DataSourceTransactionManager">
 		<property name="dataSource" ref="dataSource"></property>
 	</bean>
-	<!-- jdbc Template -->
-	<bean id="jdbctemplate" class="org.springframework.transaction.support.TransactionTemplate">
-		<property name="transactionManager" ref="transactionManager"></property>
-	</bean>
     
     <!-- 事务（注解 ）-->
     <tx:annotation-driven transaction-manager="transactionManager" proxy-target-class="true"/>
    
+   	<bean id="dao" class="cn.lemko.gps.server.dao.impl.GpsDataLoaderImpl">
+   		<property name="dataSource" ref="dataSource"></property>
+   	</bean>
+   	
+   	<bean id="service" class="cn.lemko.gps.service.GpsService">
+   		<property name="dao" ref="dao"></property>
+   	</bean>
+    
+    
+    <!-- 事务代理 -->
+   <bean id="txproxy" class="org.springframework.transaction.interceptor.TransactionProxyFactoryBean">
+   		<property name="transactionManager" ref="transactionManager"></property>
+   		<property name="target" ref="service"></property>
+   		<property name="transactionAttributes">
+   			<props>
+   				<prop key="*">PROPAGATION_REQUIRED</prop>
+   			</props>
+   		</property>
+   </bean>
     
 </beans>
